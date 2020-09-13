@@ -1,4 +1,6 @@
+//#define _USE_MATH_DEFINES
 #include "MyMesh.h"
+//#include <cmath>
 void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
 {
 	Release();
@@ -16,6 +18,36 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		Calculate a_nSubdivisions number of points around a center point in a radial manner
 		then call the AddTri function to generate a_nSubdivision number of faces
 	*/
+
+	// create a list of vector3s - the vertices for all the created triangles
+	std::vector<vector3> lVertices;
+	// create the variable that will rotate the next drawn triangle based on the ammount of sub divisions
+	float rotate = ((2 * PI) / a_nSubdivisions);
+	// *I initially used the commented out define and include above with 'M_PI' for PI, after 
+	// checking out the solution I realized there was a defined PI*
+	// set the start angle to 0
+	float angle = 0;
+
+	// create triangles and add them to the list of vertices
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// create a new vertex using cos and sin with the current angle and scale by radius 
+		// *2d shape so the z is just 0*
+		vector3 newVertex = vector3(cos(angle) * a_fRadius, sin(angle) * a_fRadius, 0.0f);
+		// add the created vertex to the list of vertices
+		lVertices.push_back(newVertex);
+		// add the rotate value to the angle
+		angle += rotate;
+	}
+
+	// use the AddTri method to create triangles using the list of vertices for each triangle
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// param1: always start at 0,0,0 
+		// param2: use the current vertex from the list of vertices
+		// param3: use the next after current vertex from the list, but make sure it never exceeds the amount in the list
+		AddTri(vector3(0.0f), lVertices[i], lVertices[(i + 1) % a_nSubdivisions]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -175,8 +207,8 @@ void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTo
 {
 	//C
 	//| \
-		//A--B
-//This will make the triangle A->B->C 
+	//A--B
+	//This will make the triangle A->B->C 
 	AddVertexPosition(a_vBottomLeft);
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopLeft);

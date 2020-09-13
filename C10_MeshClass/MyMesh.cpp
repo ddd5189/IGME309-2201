@@ -105,7 +105,7 @@ void MyMesh::CompileOpenGL3X(void)
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);//Bind the VBO
 	glBufferData(GL_ARRAY_BUFFER, m_uVertexCount * 2 * sizeof(vector3), &m_lVertex[0], GL_STATIC_DRAW);//Generate space for the VBO
 
-																									   // Position attribute
+    // Position attribute
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(vector3), (GLvoid*)0);
 
@@ -153,8 +153,8 @@ void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTo
 {
 	//C
 	//| \
-		//A--B
-//This will make the triangle A->B->C 
+	//A--B
+	//This will make the triangle A->B->C 
 	AddVertexPosition(a_vBottomLeft);
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopLeft);
@@ -186,32 +186,32 @@ void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
 	//|  |
 	//0--1
 
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
+	vector3 point0(-fValue,-fValue, fValue); //0
+	vector3 point1( fValue,-fValue, fValue); //1
+	vector3 point2( fValue, fValue, fValue); //2
 	vector3 point3(-fValue, fValue, fValue); //3
 
-	vector3 point4(-fValue, -fValue, -fValue); //4
-	vector3 point5(fValue, -fValue, -fValue); //5
-	vector3 point6(fValue, fValue, -fValue); //6
+	vector3 point4(-fValue,-fValue, -fValue); //4
+	vector3 point5( fValue,-fValue, -fValue); //5
+	vector3 point6( fValue, fValue, -fValue); //6
 	vector3 point7(-fValue, fValue, -fValue); //7
 
-											  //F
+	//Front
 	AddQuad(point0, point1, point3, point2);
 
-	//B
+	//Back
 	AddQuad(point5, point4, point6, point7);
 
-	//L
+	//Left
 	AddQuad(point4, point0, point7, point3);
 
-	//R
+	//Right
 	AddQuad(point1, point5, point2, point6);
 
-	//U
+	//Up
 	AddQuad(point3, point2, point7, point6);
 
-	//D
+	//Down
 	AddQuad(point4, point5, point0, point1);
 
 	// Adding information about color
@@ -236,8 +236,8 @@ void MyMesh::GenerateCuboid(vector3 a_v3Dimensions, vector3 a_v3Color)
 	vector3 point5(v3Value.x, -v3Value.y, -v3Value.z); //5
 	vector3 point6(v3Value.x, v3Value.y, -v3Value.z); //6
 	vector3 point7(-v3Value.x, v3Value.y, -v3Value.z); //7
-
-													   //F
+    
+	//F
 	AddQuad(point0, point1, point3, point2);
 
 	//B
