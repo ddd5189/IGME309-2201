@@ -525,6 +525,8 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+// this looks really bad at 3 subdivisions and looks much better at 10
+// at 5 it is alright
 void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
 {
 	if (a_fRadius < 0.01f)
@@ -579,7 +581,7 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	}
 
 	// add an extra point to fill the bottom of the sphere
-	lVertices.push_back(vector3(1, 0, 0) * -radius);
+	lVertices.push_back(vector3(0, 0, 1) * -radius);
 
 	for (int i = 0; i < allVertices; i++)
 	{
