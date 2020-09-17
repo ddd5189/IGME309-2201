@@ -275,8 +275,40 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
+	// cone
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// create a list of vector3s - the vertices for all the created triangles
+	std::vector<vector3> lVertices;
+	// create the variable that will rotate the next drawn triangle based on the ammount of sub divisions
+	float rotate = ((2 * PI) / a_nSubdivisions);
+	// set the start angle to 0
+	float angle = 0;
+	// divide height by 2 to center the shape
+	float height = a_fHeight/2;
+
+	// create triangles and add them to the list of vertices
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// create a new vertex using cos and sin with the current angle and scale by radius 
+		vector3 newVertex = vector3(cos(angle) * a_fRadius, -height, sin(angle) * a_fRadius);
+		// add the created vertex to the list of vertices
+		lVertices.push_back(newVertex);
+		// add the rotate value to the angle
+		angle += rotate;
+	}
+
+	// use the AddTri method to create triangles using the list of vertices for each triangle
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// base
+		// param1: start with the y at -height so it's centered 
+		// param2: use the current vertex from the list of vertices
+		// param3: use the next after current vertex from the list, but make sure it never exceeds the amount in the list
+		AddTri(vector3(0, -height, 0), lVertices[i], lVertices[(i + 1) % a_nSubdivisions]);
+		// sides
+		// set the same point for the height, and swap the other two params for the base
+		AddTri(vector3(0, height, 0) , lVertices[(i + 1) % a_nSubdivisions], lVertices[i] );
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +332,41 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// Cylinder
+	std::vector<vector3> lVertices;
+	// create the variable that will rotate the next drawn triangle based on the ammount of sub divisions
+	float rotate = ((2 * PI) / a_nSubdivisions);
+	// set the start angle to 0
+	float angle = 0;
+	float height = a_fHeight;
+	vector3 heightVec = vector3(0, height, 0);
+
+	// create triangles and add them to the list of vertices
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// create a new vertex using cos and sin with the current angle and scale by radius
+		// use -height/2 to make it centered 
+		vector3 newVertex = vector3(cos(angle) * a_fRadius, -height/2, sin(angle) * a_fRadius);
+		// add the created vertex to the list of vertices
+		lVertices.push_back(newVertex);
+		// add the rotate value to the angle
+		angle += rotate;
+	}
+
+	// use the AddTri method to create triangles using the list of vertices for each triangle
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// base
+		// param1: start with the y at -height/2 so it's centered
+		// param2: use the current vertex from the list of vertices
+		// param3: use the next after current vertex from the list, but make sure it never exceeds the amount in the list
+		AddTri(vector3(0, -height/2, 0), lVertices[i], lVertices[(i + 1) % a_nSubdivisions]);
+		// base 2, set the y of all the vectors to the requested height, by adding a vector with the height as the y
+		AddTri(vector3(0, height/2, 0), lVertices[(i + 1) % a_nSubdivisions] + heightVec, lVertices[i] + heightVec);
+		// sides
+		// use the vertecies from the above bases to connect them with triangles, using the AddQuad function.
+		AddQuad(lVertices[i], lVertices[i] + heightVec, lVertices[(i + 1) % a_nSubdivisions], lVertices[(i + 1) % a_nSubdivisions] + heightVec);
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +396,52 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	// Tube
+	// 2 separate lists for the inner and outer vertices 
+	std::vector<vector3> lVerticesInner;
+	std::vector<vector3> lVerticesOuter;
+	// create the variable that will rotate the next drawn triangle based on the ammount of sub divisions
+	float rotate = ((2 * PI) / a_nSubdivisions);
+	// set the start angle to 0
+	float angle = 0;
+	// store the height in an easier var
+	float height = a_fHeight;
+	// create the height vector used to translate the top 
+	vector3 heightVec = vector3(0, height, 0);
+
+	// create triangles (quads) and add them to the list of vertices
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// create a new vertex using cos and sin with the current angle and scale by inner radius 
+		// use -height/2 to make it centered
+		vector3 newVertex = vector3(cos(angle) * a_fInnerRadius, -height/2, sin(angle) * a_fInnerRadius);
+		// add the created vertex to the list of inner vertices
+		lVerticesInner.push_back(newVertex);
+
+		// create a new vertex using cos and sin with the current angle and scale by outer radius 
+		vector3 newVertex1 = vector3(cos(angle) * a_fOuterRadius, -height / 2, sin(angle) * a_fOuterRadius);
+		// add the created vertex to the list of outer vertices
+		lVerticesOuter.push_back(newVertex1);
+
+		// add the rotate value to the angle
+		angle += rotate;
+	}
+
+	// use the AddQuad method to create triangles (quads) using each list of vertices
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// top
+		AddQuad(lVerticesOuter[i] + heightVec, lVerticesInner[i] + heightVec, lVerticesOuter[(i + 1) % a_nSubdivisions] + heightVec, lVerticesInner[(i + 1) % a_nSubdivisions] + heightVec);
+		// base
+		AddQuad(lVerticesInner[(i + 1) % a_nSubdivisions], lVerticesInner[i], lVerticesOuter[(i + 1) % a_nSubdivisions], lVerticesOuter[i]);
+
+		// outer sides
+		// use the vertecies from the above bases to connect them with triangles, using the AddQuad function.
+		AddQuad(lVerticesOuter[i], lVerticesOuter[i] + heightVec, lVerticesOuter[(i + 1) % a_nSubdivisions], lVerticesOuter[(i + 1) % a_nSubdivisions] + heightVec);
+		// inner sides
+		// use the vertecies from the above bases to connect them with triangles, using the AddQuad function.
+		AddQuad(lVerticesInner[(i + 1) % a_nSubdivisions] + heightVec, lVerticesInner[i] + heightVec, lVerticesInner[(i + 1) % a_nSubdivisions], lVerticesInner[i]);
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -362,7 +473,52 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	// Torus
+	// list of all vertices
+	std::vector<vector3> lVertices;
+	// create the variables that will rotate the next drawn triangle (quad) based on the ammount of sub divisions
+	float rotateA = ((2 * PI) / a_nSubdivisionsA);
+	float rotateB = ((2 * PI) / a_nSubdivisionsB);
+	// variable for the Poloidal direction
+	float v = 0;
+	// variable for the Toroidal direction
+	float u = 0;
+	// variable for the center of the tube from center of hole
+	float c = (a_fOuterRadius + a_fInnerRadius) / 2;
+	// variable for radius of the tube
+	float a = (a_fOuterRadius - a_fInnerRadius) / 2;
+	// helper variable for the total number of vertices 
+	float allVertices = a_nSubdivisionsA * a_nSubdivisionsB;
+
+	// a_nSubdivisionsA is how many subdivisions the whole torus has
+	// for every torus subdivision find every point around the tube
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		// a_nSubdivisionsB is how many subdivisions the tube has
+		for (int i = 0; i < a_nSubdivisionsB; i++)
+		{
+			// v changes as this is finding every point at a subdivision in the tube
+			// u stays the same, making sure each point is at the same subdivision
+			float x = (c + a * cos(v)) * cos(u);
+			float y = (c + a * cos(v)) * sin(u);
+			float z = a * sin(v);
+			vector3 newVertex = vector3(x, y, z);
+
+			lVertices.push_back(newVertex);
+
+			v += rotateA;
+		}
+		// change the torus subdivision for the next set up vertices
+		u += rotateB;
+	}
+
+
+	for (int i = 0; i < allVertices; i++)
+	{
+		// create all the necessary quads making sure that the index is never out of range
+		// using allVertices (casting it to an int)
+		AddQuad(lVertices[i], lVertices[(i + a_nSubdivisionsB) % (int)allVertices] , lVertices[(i + 1) % (int)allVertices], lVertices[(i + a_nSubdivisionsB + 1) % (int)allVertices]);
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -380,14 +536,64 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		GenerateCube(a_fRadius * 2.0f, a_v3Color);
 		return;
 	}
-	if (a_nSubdivisions > 6)
-		a_nSubdivisions = 6;
+	if (a_nSubdivisions > 20)
+		a_nSubdivisions = 20;
 
 	Release();
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// Sphere
+	std::vector<vector3> lVertices;
+	// create the variables that will rotate the next drawn triangle (quad) based on the ammount of sub divisions
+	// longitude
+	float rotateA = (2 * PI) / a_nSubdivisions;
+	// latitude
+	float rotateB = PI / a_nSubdivisions;
+	// set the start angles to 0
+	float angleA = 0;
+	float angleB = 0;
+	// helper var for radius
+	float radius = a_fRadius;
+	// helper var for the total number of verices
+	float allVertices = a_nSubdivisions * a_nSubdivisions;
+
+	// create triangles (quads) and add them to the list of vertices
+	for (int i = 0; i <= a_nSubdivisions; i++)
+	{
+		for (int i = 0; i < a_nSubdivisions; i++)
+		{
+			// create the points for the sphere
+			float x = radius * cos(angleA) * sin(angleB);
+			float y = radius * sin(angleA) * sin(angleB);
+			float z = radius * cos(angleB);
+			// create a new vector3 with the points generate above
+			vector3 newVertex = vector3(x, y, z);
+			// push it to the list
+			lVertices.push_back(newVertex);
+			// change angleA
+			angleA += rotateA;
+		}
+		// change angleB
+		angleB += rotateB;
+	}
+
+	// add an extra point to fill the bottom of the sphere
+	lVertices.push_back(vector3(1, 0, 0) * -radius);
+
+	for (int i = 0; i < allVertices; i++)
+	{
+		// add quads to render the sphere
+		AddQuad(
+			lVertices[(i + a_nSubdivisions)],
+			lVertices[(i + a_nSubdivisions + 1)],
+			lVertices[i], 
+			lVertices[(i + 1)]);
+
+		// *the shape is a bit odd, and it looks weird in one of the sectors, but it is a complete sphere.*
+	}
+
+
 	// -------------------------------
 
 	// Adding information about color
