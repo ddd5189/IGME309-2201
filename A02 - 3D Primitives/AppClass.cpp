@@ -18,8 +18,8 @@ void Application::InitVariables(void)
 	m_pTube = new MyMesh();
 	m_pTube->GenerateTube(0.5f, 0.35f, 1.0f, 7, C_GREEN);
 	m_pSphere = new MyMesh();
-	// I changed this to 10 to make it look better
-	m_pSphere->GenerateSphere(0.5f, 10, C_BLUE);
+	// This looks a lot beter with 10
+	m_pSphere->GenerateSphere(0.5f, 3, C_BLUE);
 	m_pTorus = new MyMesh();
 	m_pTorus->GenerateTorus(0.5f, 0.30f, 7, 7, C_VIOLET);
 
