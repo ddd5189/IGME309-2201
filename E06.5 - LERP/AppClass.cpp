@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Drew Donovan - ddd5189@rit.edu";
 
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUpward(vector3(5.0f,3.0f,15.0f), ZERO_V3, AXIS_Y);
@@ -10,22 +10,35 @@ void Application::InitVariables(void)
 	m_pModel = new Simplex::Model();
 	m_pModel->Load("Sorted\\WallEye.bto");
 	
-	m_stopsList.push_back(vector3(-4.0f, -2.0f, 5.0f));
-	m_stopsList.push_back(vector3(1.0f, -2.0f, 5.0f));
+	//m_stopsList.push_back(vector3(-4.0f, -2.0f, 5.0f));
+	//m_stopsList.push_back(vector3(1.0f, -2.0f, 5.0f));
+	//
+	//m_stopsList.push_back(vector3(-3.0f, -1.0f, 3.0f));
+	//m_stopsList.push_back(vector3(2.0f, -1.0f, 3.0f));
+	//
+	//m_stopsList.push_back(vector3(-2.0f, 0.0f, 0.0f));
+	//m_stopsList.push_back(vector3(3.0f, 0.0f, 0.0f));
+	//
+	//m_stopsList.push_back(vector3(-1.0f, 1.0f, -3.0f));
+	//m_stopsList.push_back(vector3(4.0f, 1.0f, -3.0f));
+	//
+	//m_stopsList.push_back(vector3(0.0f, 2.0f, -5.0f));
+	//m_stopsList.push_back(vector3(5.0f, 2.0f, -5.0f));
+	//
+	//m_stopsList.push_back(vector3(1.0f, 3.0f, -5.0f));
 
-	m_stopsList.push_back(vector3(-3.0f, -1.0f, 3.0f));
-	m_stopsList.push_back(vector3(2.0f, -1.0f, 3.0f));
-
-	m_stopsList.push_back(vector3(-2.0f, 0.0f, 0.0f));
-	m_stopsList.push_back(vector3(3.0f, 0.0f, 0.0f));
-
-	m_stopsList.push_back(vector3(-1.0f, 1.0f, -3.0f));
-	m_stopsList.push_back(vector3(4.0f, 1.0f, -3.0f));
-
-	m_stopsList.push_back(vector3(0.0f, 2.0f, -5.0f));
-	m_stopsList.push_back(vector3(5.0f, 2.0f, -5.0f));
-
+	// I reveresed these so he walks forward instead of back.
 	m_stopsList.push_back(vector3(1.0f, 3.0f, -5.0f));
+	m_stopsList.push_back(vector3(5.0f, 2.0f, -5.0f));
+	m_stopsList.push_back(vector3(0.0f, 2.0f, -5.0f));
+	m_stopsList.push_back(vector3(4.0f, 1.0f, -3.0f));
+	m_stopsList.push_back(vector3(-1.0f, 1.0f, -3.0f));
+	m_stopsList.push_back(vector3(3.0f, 0.0f, 0.0f));
+	m_stopsList.push_back(vector3(-2.0f, 0.0f, 0.0f));
+	m_stopsList.push_back(vector3(2.0f, -1.0f, 3.0f));
+	m_stopsList.push_back(vector3(-3.0f, -1.0f, 3.0f));
+	m_stopsList.push_back(vector3(1.0f, -2.0f, 5.0f));
+	m_stopsList.push_back(vector3(-4.0f, -2.0f, 5.0f));
 }
 void Application::Update(void)
 {
@@ -59,11 +72,36 @@ void Application::Display(void)
 
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
+	//v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 	//-------------------
 	
+	// create the percentage using MapValue 
+	float fPercentage = static_cast<float>(MapValue(fTimer, 0.0f, 1.0f, 0.0f, 1.0f));
 
+	// create vec3 to be used for each stop
+	vector3 v3Start;
+	vector3 v3End;
+	static uint route = 0;
+	// make sure the stop exists
+	if (route < m_stopsList.size() - 1) {
+		v3Start = m_stopsList[route];
+		v3End = m_stopsList[route + 1];
+	}
+	else {
+		v3Start = m_stopsList[m_stopsList.size() - 1];
+		v3End = m_stopsList[0];
+	}
 
+	// using glm::lerp set the start and end points and the percentage to get there
+	v3CurrentPos = glm::lerp(v3Start, v3End, fPercentage);
+
+	// make sure it only moves as far as the point and then changes to the next stop
+	// and then reset route using % so it loops
+	if (fPercentage >= 1.0f) {
+		route++;
+		fTimer = m_pSystem->GetDeltaTime(uClock);
+		route %= m_stopsList.size();
+	}
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
