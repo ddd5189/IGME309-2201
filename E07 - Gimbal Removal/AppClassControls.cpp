@@ -416,28 +416,48 @@ void Application::ProcessKeyboard(void)
 #pragma endregion
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
-		if (fMultiplier)
-			m_v3Rotation.x -= 1.0f;
-		else
-			m_v3Rotation.x += 1.0f;
+		// NOTE: at 1.0f the object rotated really fast, and I'm not too sure why
+		// so I changed them to 0.05f to slow it down.
+
+		// when fMultiplier is activated set the angle axis to negative so it goes backwards
+		if (fMultiplier) {
+			quaternion quat = glm::angleAxis(0.05f, vector3(-1.0f, 0.0f, 0.0f));
+			m_qOrientation = m_qOrientation * quat;
+		}
+		else {
+			quaternion quat = glm::angleAxis(0.05f, vector3(1.0f, 0.0f, 0.0f));
+			m_qOrientation = m_qOrientation * quat;
+		}
+
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 	{
-		if (fMultiplier)
-			m_v3Rotation.y -= 1.0f;
-		else
-			m_v3Rotation.y += 1.0f;
+		if (fMultiplier) {
+			quaternion quat = glm::angleAxis(0.05f, vector3(0.0f, -1.0f, 0.0f));
+			m_qOrientation = m_qOrientation * quat;
+		}
+		else {
+			quaternion quat = glm::angleAxis(0.05f, vector3(0.0f, 1.0f, 0.0f));
+			m_qOrientation = m_qOrientation * quat;
+		}
+
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 	{
-		if (fMultiplier)
-			m_v3Rotation.z -= 1.0f;
-		else
-			m_v3Rotation.z += 1.0f;
+		if (fMultiplier) {
+			quaternion quat = glm::angleAxis(0.05f, vector3(0.0f, 0.0f, -1.0f));
+			m_qOrientation = m_qOrientation * quat;
+		}
+		else {
+			quaternion quat = glm::angleAxis(0.05f, vector3(0.0f, 0.0f, 1.0f));
+			m_qOrientation = m_qOrientation * quat;
+		}
+
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 	{
 		m_v3Rotation = vector3(0.0f);
+		m_qOrientation = quaternion();
 	}
 }
 //Joystick
