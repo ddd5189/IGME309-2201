@@ -54,21 +54,37 @@ void Application::Display(void)
 		break;
 	case 2:
 		m_pCamera->ResetCamera();
+		// set it to ortho
+		m_pCamera->SetPerspective(false);
 		break;
 	case 3:
 		m_pCamera->ResetCamera();
+		// move the camera to the right 20 and rotate it to have the z axis be the up vector
+		m_pCamera->SetPosition(vector3(1.0f, 0.0f, 0.0f) * 20.0f);
+		m_pCamera->SetUp(vector3(0.0f, 0.0f, 1.0f) * -1.0f);
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
+		// move the camera to the other side of the objects (automatically changes direction
+		// due to the target vector)
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, 1.0f) * -15.0f);
 		break;
 	case 5:
 		m_pCamera->ResetCamera();
+		// same move as above, but also change the near value to remove the cone
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, 1.0f) * -15.0f);
+		m_pCamera->SetNearFar(vector2(5.0f, 1000.0f));
 		break;
 	case 6:
 		m_pCamera->ResetCamera();
+		// same move as above, but also change the far value to remove the red torus
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, 1.0f) * -15.0f);
+		m_pCamera->SetNearFar(vector2(0.01f, 10.0f));
 		break;
 	case 7:
 		m_pCamera->ResetCamera();
+		// rotate the up vector to upside down on the y axis 
+		m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f) * -1.0f);
 		break;
 	}
 
