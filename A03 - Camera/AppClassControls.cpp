@@ -344,32 +344,75 @@ void Application::CameraRotation(float a_fSpeed)
 	MouseY = pt.y;
 
 	//Calculate the difference in view with the angle
-	float fAngleX = 0.0f;
-	float fAngleY = 0.0f;
+	static float fAngleX = 0.0f; // vert
+	static float fAngleY = 0.0f; // horiz
 	float fDeltaMouse = 0.0f;
+
+	// following if statements determine where the mouse was moved
+	// and calucalate the angle to change the pitch or yaw of the camera
+
+	// yaw 
+	// left of center
 	if (MouseX < CenterX)
 	{
 		fDeltaMouse = static_cast<float>(CenterX - MouseX);
 		fAngleY += fDeltaMouse * a_fSpeed;
 	}
+	// yaw
+	// right of center
 	else if (MouseX > CenterX)
 	{
 		fDeltaMouse = static_cast<float>(MouseX - CenterX);
 		fAngleY -= fDeltaMouse * a_fSpeed;
 	}
-
+	// pitch
+	// down from center
 	if (MouseY < CenterY)
 	{
 		fDeltaMouse = static_cast<float>(CenterY - MouseY);
 		fAngleX -= fDeltaMouse * a_fSpeed;
 	}
+	// pitch
+	// up from center
 	else if (MouseY > CenterY)
 	{
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
-	//Change the Yaw and the Pitch of the camera
-	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
+
+	// variables to help clarify the use of the angles
+	float pitch = fAngleX;
+	float yaw = fAngleY;
+
+	// limit the vertical rotation so it doesn't rotate through the axis or get stuck in gimbal lock
+	// ***When only checking for pitch, the camera will get "stuck" like the given solution
+	// where when you look up or down, it takes more movement than usual to move it
+	// When only checking for fAngleX the camera will jump when trying to rotate past straight up or down
+	// checking for both eliminates each of these problems***
+	if (pitch > 89.0f || fAngleX > 89.0f) 
+	{
+		pitch = 89.0f;
+		fAngleX = 89.0f;
+	}
+	if (pitch < -89.0f || fAngleX < -89.0f)
+	{
+		pitch = -89.0f;
+		fAngleX = -89.0f;
+	}
+
+	// calculate the direction vector with euler angles that will get 
+	// added to the pos vector in the lookAt function
+	glm::vec3 direction = glm::vec3(
+		-cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
+		-sin(glm::radians(pitch)),
+		sin(glm::radians(yaw)) * cos(glm::radians(pitch)));
+
+	// set the target vector as the normalized direction vector created above
+	m_pCamera->SetTarget(glm::normalize(direction));
+
+	//Position the mouse in the center
+	SetCursorPos(CenterX, CenterY);
+
 }
 //Keyboard
 void Application::ProcessKeyboard(void)
@@ -386,10 +429,30 @@ void Application::ProcessKeyboard(void)
 	if (fMultiplier)
 		fSpeed *= 5.0f;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	// call the appropriate move function from the camera
+	// when one of the WASD + QE keys is pressed
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		m_pCamera->MoveForward(fSpeed);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 		m_pCamera->MoveForward(-fSpeed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+		m_pCamera->MoveSideways(fSpeed);
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+		m_pCamera->MoveSideways(-fSpeed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+		m_pCamera->MoveVertical(fSpeed);
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+		m_pCamera->MoveVertical(-fSpeed);
+	}
+
 #pragma endregion
 }
 //Joystick

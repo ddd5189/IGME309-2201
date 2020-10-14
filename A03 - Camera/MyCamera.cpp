@@ -123,8 +123,12 @@ void Simplex::MyCamera::SetPositionTargetAndUpward(vector3 a_v3Position, vector3
 	m_v3Position = a_v3Position;
 	m_v3Target = a_v3Target;
 
-	m_v3Above = a_v3Position + glm::normalize(a_v3Upward);
-	
+	//m_v3Above = a_v3Position + glm::normalize(a_v3Upward);
+
+	// when adding the upward vector to the position it skews the transformation and has
+	// unwanted results based on my implementation of the rotation of the camera,
+	// instead keep the upward vector parallel to the y axis
+	m_v3Above = glm::normalize(a_v3Upward);
 	//Calculate the Matrix
 	CalculateProjectionMatrix();
 }
@@ -132,7 +136,9 @@ void Simplex::MyCamera::SetPositionTargetAndUpward(vector3 a_v3Position, vector3
 void Simplex::MyCamera::CalculateViewMatrix(void)
 {
 	//Calculate the look at most of your assignment will be reflected in this method
-	m_m4View = glm::lookAt(m_v3Position, m_v3Target, glm::normalize(m_v3Above - m_v3Position)); //position, target, upward
+	// instead of just Target, add the current position to the Target vector 
+	// so it looks in the right direction
+	m_m4View = glm::lookAt(m_v3Position, m_v3Position + m_v3Target, m_v3Above); //position, target, upward
 }
 
 void Simplex::MyCamera::CalculateProjectionMatrix(void)
@@ -152,11 +158,22 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 
 void MyCamera::MoveForward(float a_fDistance)
 {
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
+	// update the position (forward or backward) using the speed and target vector
+	m_v3Position += a_fDistance * m_v3Target;
 }
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
-void MyCamera::MoveSideways(float a_fDistance){}//Needs to be defined
+void MyCamera::MoveVertical(float a_fDistance)
+{
+	// update the position using the speed and above vector
+	// the above vector doesn't change when the camera is rotated (always parallel to the y axis).
+	// Like the solution given in the _Binary folder
+	// Q and E move the camera down and up regardless of where it's looking
+	m_v3Position += a_fDistance * glm::normalize(m_v3Above);
+}
+
+void MyCamera::MoveSideways(float a_fDistance)
+{
+	// calculate the position using the cross product of the target and 
+	// above vector (again always parallel to the y axis) scaled by the speed
+	m_v3Position += glm::normalize(glm::cross(m_v3Target, m_v3Above)) * a_fDistance;
+}

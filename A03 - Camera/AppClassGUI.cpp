@@ -35,6 +35,8 @@ void Application::DrawGUI(void)
 				ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
 			ImGui::Text("Control:\n");
 			ImGui::Text("   WASD: Movement\n");
+			// added
+			ImGui::Text("   QE: Down/Up\n");
 			ImGui::Text("Right Click + move: Rotate line of view\n");
 
 		}
