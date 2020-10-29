@@ -71,7 +71,7 @@ void MyRigidBody::SetColorNotColliding(vector3 a_v3Color) { m_v3ColorNotCollidin
 vector3 MyRigidBody::GetCenterLocal(void) { return m_v3Center; }
 vector3 MyRigidBody::GetMinLocal(void) { return m_v3MinL; }
 vector3 MyRigidBody::GetMaxLocal(void) { return m_v3MaxL; }
-vector3 MyRigidBody::GetCenterGlobal(void){	return vector3(m_m4ToWorld * vector4(m_v3Center, 1.0f)); }
+vector3 MyRigidBody::GetCenterGlobal(void) { return vector3(m_m4ToWorld * vector4(m_v3Center, 1.0f)); }
 vector3 MyRigidBody::GetMinGlobal(void) { return m_v3MinG; }
 vector3 MyRigidBody::GetMaxGlobal(void) { return m_v3MaxG; }
 vector3 MyRigidBody::GetHalfWidth(void) { return m_v3HalfWidth; }
@@ -228,11 +228,11 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
 	//check if spheres are colliding as pre-test
 	bool bColliding = (glm::distance(GetCenterGlobal(), a_pOther->GetCenterGlobal()) < m_fRadius + a_pOther->m_fRadius);
-	
+
 	//if they are colliding check the SAT
 	if (bColliding)
 	{
-		if(SAT(a_pOther) != eSATResults::SAT_NONE)
+		if (SAT(a_pOther) != eSATResults::SAT_NONE)
 			bColliding = false;// reset to false
 	}
 
@@ -325,23 +325,23 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	vector3 thisX = v3ThisCorner[1] - v3ThisCorner[0];		// X axis of This OBB
 	vector3 thisXAxis = glm::normalize(thisX);				// Normalized X axis vector of This OBB
 	thisAxes.push_back(thisXAxis);
-	
+
 	vector3 thisY = v3ThisCorner[2] - v3ThisCorner[0];		// Y axis of This OBB
 	vector3 thisYAxis = glm::normalize(thisY);				// Normalized Y axis vector of This OBB
 	thisAxes.push_back(thisYAxis);
-	
+
 	vector3 thisZ = v3ThisCorner[4] - v3ThisCorner[0];		// Z axis of This OBB
 	vector3 thisZAxis = glm::normalize(thisZ);				// Normalized Z axis vector of This OBB
 	thisAxes.push_back(thisZAxis);
-	
+
 	vector3 otherX = v3OtherCorner[1] - v3OtherCorner[0];	// X axis of the Other OBB
 	vector3 otherXAxis = glm::normalize(otherX);			// Normalized X axis vector of Other OBB
 	otherAxes.push_back(otherXAxis);
-	
+
 	vector3 otherY = v3OtherCorner[2] - v3OtherCorner[0];	// Y axis of the Other OBB
 	vector3 otherYAxis = glm::normalize(otherY);			// Normalized Y axis vector of Other OBB
 	otherAxes.push_back(otherYAxis);
-	
+
 	vector3 otherZ = v3OtherCorner[4] - v3OtherCorner[0];	// Z axis of the Other OBB
 	vector3 otherZAxis = glm::normalize(otherZ);			// Normalized Z axis vector of Other OBB
 	otherAxes.push_back(otherZAxis);
@@ -380,7 +380,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 		for (uint j = 0; j < 3; j++)
 			AbsR[i][j] = glm::abs(R[i][j]) + DBL_EPSILON;
 
-	// test axes L=A0, L=A1, L=A2
+	// test axes L=AX, L=AY, L=AZ
 	for (uint i = 0; i < 3; i++)
 	{
 		thisProjection = thisHalfWidth[i];
@@ -389,7 +389,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 			return 1;
 	}
 
-	// test axes L=B0, L=B1, L=B2
+	// test axes L=BX, L=BY, L=BZ
 	for (uint i = 0; i < 3; i++)
 	{
 		thisProjection = thisHalfWidth.x * AbsR[0][i] + thisHalfWidth.y * AbsR[1][i] + thisHalfWidth.z * AbsR[2][i];
@@ -401,59 +401,59 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	}
 
 	// *Note x = cross product of each axis
-	// test axis A0 x B0
+	// test axis AX x BX
 	thisProjection = thisHalfWidth.y * AbsR[2][0] + thisHalfWidth.z * AbsR[1][0];
 	otherProjection = otherHalfWidth.y * AbsR[0][2] + otherHalfWidth.z * AbsR[0][1];
 	if (glm::abs(distanceCenter.z * R[1][0] - distanceCenter.y * R[2][0]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AXxBX;
 
-	// test axis A0 x B1
+	// test axis AX x BY
 	thisProjection = thisHalfWidth.y * AbsR[2][1] + thisHalfWidth.z * AbsR[1][1];
 	otherProjection = otherHalfWidth.x * AbsR[0][2] + otherHalfWidth.z * AbsR[0][0];
 	if (glm::abs(distanceCenter.z * R[1][1] - distanceCenter.y * R[2][1]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AXxBY;
 
-	// test axis A0 x B2
+	// test axis AX x BZ
 	thisProjection = thisHalfWidth.y * AbsR[2][2] + thisHalfWidth.z * AbsR[1][2];
 	otherProjection = otherHalfWidth.x * AbsR[0][1] + otherHalfWidth.y * AbsR[0][0];
 	if (glm::abs(distanceCenter.z * R[1][2] - distanceCenter.y * R[2][2]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AXxBZ;
 
-	// test axis A1 x B0
+	// test axis AY x BX
 	thisProjection = thisHalfWidth.x * AbsR[2][0] + thisHalfWidth.z * AbsR[0][0];
 	otherProjection = otherHalfWidth.y * AbsR[1][2] + otherHalfWidth.z * AbsR[1][1];
 	if (glm::abs(distanceCenter.x * R[2][0] - distanceCenter.z * R[0][0]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AYxBX;
 
-	// test axis A1 x B1
+	// test axis AY x BY
 	thisProjection = thisHalfWidth.x * AbsR[2][1] + thisHalfWidth.z * AbsR[0][1];
 	otherProjection = otherHalfWidth.x * AbsR[1][2] + otherHalfWidth.z * AbsR[1][0];
 	if (glm::abs(distanceCenter.x * R[2][1] - distanceCenter.z * R[0][1]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AYxBY;
 
-	// test axis L = A1 x B2
+	// test axis AY x BZ
 	thisProjection = thisHalfWidth.x * AbsR[2][2] + thisHalfWidth.z * AbsR[0][2];
 	otherProjection = otherHalfWidth.x * AbsR[1][1] + otherHalfWidth.y * AbsR[1][0];
 	if (glm::abs(distanceCenter.x * R[2][2] - distanceCenter.z * R[0][2]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AYxBZ;
 
-	// test axis A2 x B0
+	// test axis AZ x BX
 	thisProjection = thisHalfWidth.x * AbsR[1][0] + thisHalfWidth.y * AbsR[0][0];
 	otherProjection = otherHalfWidth.y * AbsR[2][2] + otherHalfWidth.z * AbsR[2][1];
 	if (glm::abs(distanceCenter.y * R[0][0] - distanceCenter.x * R[1][0]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AZxBX;
 
-	// test axis A2 x B1
+	// test axis AZ x BY
 	thisProjection = thisHalfWidth.x * AbsR[1][1] + thisHalfWidth.y * AbsR[0][1];
 	otherProjection = otherHalfWidth.x * AbsR[2][2] + otherHalfWidth.z * AbsR[2][0];
 	if (glm::abs(distanceCenter.y * R[0][1] - distanceCenter.x * R[1][1]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AZxBY;
 
-	// test axis A2 x B2
+	// test axis AZ x BZ
 	thisProjection = thisHalfWidth.x * AbsR[1][2] + thisHalfWidth.y * AbsR[0][2];
 	otherProjection = otherHalfWidth.x * AbsR[2][1] + otherHalfWidth.y * AbsR[2][0];
 	if (glm::abs(distanceCenter.y * R[0][2] - distanceCenter.x * R[1][2]) > thisProjection + otherProjection)
-		return 1;
+		return eSATResults::SAT_AZxBZ;
 
 	//there is no axis test that separates these two objects
 	return eSATResults::SAT_NONE;
