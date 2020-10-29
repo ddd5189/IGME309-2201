@@ -277,7 +277,7 @@ void MyRigidBody::AddToRenderList(void)
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
 #pragma region Find and store corners for each OBB
-	// Number of corners 
+	// Number of corners (8) 
 	const uint numCorners = 8;
 	//	Corners of This box
 	vector3 v3ThisCorner[numCorners];
@@ -292,75 +292,93 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	v3ThisCorner[6] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z);
 	v3ThisCorner[7] = m_v3MaxL;
 
-	//	convert the corners to world space
-	for (uint uIndex = 0; uIndex < numCorners; ++uIndex)
+	//	Convert the corners to world space
+	for (uint i = 0; i < numCorners; ++i)
 	{
-		v3ThisCorner[uIndex] = vector3(m_m4ToWorld * vector4(v3ThisCorner[uIndex], 1.0f));
+		v3ThisCorner[i] = vector3(m_m4ToWorld * vector4(v3ThisCorner[i], 1.0f));
 	}
 
-	vector3 otherMax = a_pOther->GetMaxLocal(); // Max of the Other box
-	vector3 otherMin = a_pOther->GetMinLocal(); // Min of the Other box
+	vector3 otherMax = a_pOther->GetMaxLocal(); // Max of the Other box in local coordinate system
+	vector3 otherMin = a_pOther->GetMinLocal(); // Min of the Other box	in local coordinate system
 	// Other box's model matrix
 	matrix4 otherModelMatrix = a_pOther->GetModelMatrix();
 
 	// Corners of the Other box
 	vector3 v3OtherCorner[numCorners];
-	// multiply each by the model matrix so it's in the proper orientation
+	// Multiply each by the model matrix so it's in the proper orientation
 	//Back square
-	v3OtherCorner[0] = otherModelMatrix * vector4(otherMin, 1.0f);
-	v3OtherCorner[1] = otherModelMatrix * vector4(otherMax.x, otherMin.y, otherMin.z, 1.0f);
-	v3OtherCorner[2] = otherModelMatrix * vector4(otherMin.x, otherMax.y, otherMin.z, 1.0f);
-	v3OtherCorner[3] = otherModelMatrix * vector4(otherMax.x, otherMax.y, otherMin.z, 1.0f);
-	//Front square
-	v3OtherCorner[4] = otherModelMatrix * vector4(otherMin.x, otherMin.y, otherMax.z, 1.0f);
-	v3OtherCorner[5] = otherModelMatrix * vector4(otherMax.x, otherMin.y, otherMax.z, 1.0f);
-	v3OtherCorner[6] = otherModelMatrix * vector4(otherMin.x, otherMax.y, otherMax.z, 1.0f);
-	v3OtherCorner[7] = otherModelMatrix * vector4(otherMax, 1.0f);
+	v3OtherCorner[0] = otherMin;
+	v3OtherCorner[1] = vector3(otherMax.x, otherMin.y, otherMin.z);
+	v3OtherCorner[2] = vector3(otherMin.x, otherMax.y, otherMin.z);
+	v3OtherCorner[3] = vector3(otherMax.x, otherMax.y, otherMin.z);
+	//Front square			 
+	v3OtherCorner[4] = vector3(otherMin.x, otherMin.y, otherMax.z);
+	v3OtherCorner[5] = vector3(otherMax.x, otherMin.y, otherMax.z);
+	v3OtherCorner[6] = vector3(otherMin.x, otherMax.y, otherMax.z);
+	v3OtherCorner[7] = otherMax;
+
+	// Convert the corners to world space 
+	for (uint i = 0; i < numCorners; i++)
+	{
+		v3OtherCorner[i] = vector3(otherModelMatrix * vector4(v3OtherCorner[i], 1.0f));
+	}
 #pragma endregion
 
 #pragma region Axes Calculations
 	std::vector<vector3> thisAxes;	// Axes of This objects OBB 
 	std::vector<vector3> otherAxes;	// Axes of Other objects OBB
 
-	vector3 thisX = v3ThisCorner[1] - v3ThisCorner[0];		// X axis of This OBB
-	vector3 thisXAxis = glm::normalize(thisX);				// Normalized X axis vector of This OBB
+	const uint index0 = 0;	// Index of the min corner (0)
+	const uint index1 = 1;	// Index of the corner to the right of the min corner on the x-axis (1)
+	const uint index2 = 2;	// Index of the corner above the min corner on the y-axis (2)
+	const uint index4 = 4;	// Index of the corner in front of the min corner on the z-axis (4)
+
+	//----------------------------This Object-------------------------------------------------------------------
+	vector3 thisX = v3ThisCorner[index1] - v3ThisCorner[index0];	// X axis of This OBB
+	vector3 thisXAxis = glm::normalize(thisX);						// Normalized X axis vector of This OBB
 	thisAxes.push_back(thisXAxis);
 
-	vector3 thisY = v3ThisCorner[2] - v3ThisCorner[0];		// Y axis of This OBB
-	vector3 thisYAxis = glm::normalize(thisY);				// Normalized Y axis vector of This OBB
+	vector3 thisY = v3ThisCorner[index2] - v3ThisCorner[index0];	// Y axis of This OBB
+	vector3 thisYAxis = glm::normalize(thisY);						// Normalized Y axis vector of This OBB
 	thisAxes.push_back(thisYAxis);
 
-	vector3 thisZ = v3ThisCorner[4] - v3ThisCorner[0];		// Z axis of This OBB
-	vector3 thisZAxis = glm::normalize(thisZ);				// Normalized Z axis vector of This OBB
+	vector3 thisZ = v3ThisCorner[index4] - v3ThisCorner[index0];	// Z axis of This OBB
+	vector3 thisZAxis = glm::normalize(thisZ);						// Normalized Z axis vector of This OBB
 	thisAxes.push_back(thisZAxis);
 
-	vector3 otherX = v3OtherCorner[1] - v3OtherCorner[0];	// X axis of the Other OBB
-	vector3 otherXAxis = glm::normalize(otherX);			// Normalized X axis vector of Other OBB
+	//----------------------------Other Object------------------------------------------------------------------
+	vector3 otherX = v3OtherCorner[index1] - v3OtherCorner[index0];	// X axis of the Other OBB
+	vector3 otherXAxis = glm::normalize(otherX);					// Normalized X axis vector of Other OBB
 	otherAxes.push_back(otherXAxis);
 
-	vector3 otherY = v3OtherCorner[2] - v3OtherCorner[0];	// Y axis of the Other OBB
-	vector3 otherYAxis = glm::normalize(otherY);			// Normalized Y axis vector of Other OBB
+	vector3 otherY = v3OtherCorner[index2] - v3OtherCorner[index0];	// Y axis of the Other OBB
+	vector3 otherYAxis = glm::normalize(otherY);					// Normalized Y axis vector of Other OBB
 	otherAxes.push_back(otherYAxis);
 
-	vector3 otherZ = v3OtherCorner[4] - v3OtherCorner[0];	// Z axis of the Other OBB
-	vector3 otherZAxis = glm::normalize(otherZ);			// Normalized Z axis vector of Other OBB
+	vector3 otherZ = v3OtherCorner[index4] - v3OtherCorner[index0];	// Z axis of the Other OBB
+	vector3 otherZAxis = glm::normalize(otherZ);					// Normalized Z axis vector of Other OBB
 	otherAxes.push_back(otherZAxis);
 #pragma endregion
 
 #pragma region SAT tests
 	// Following code was adapted from Chapter 4 of Real-Time Collision Detection by Christer Ericson (pgs. 101-105)
 
-	float thisProjection;	// Projection of This object on the current separting plane
-	float otherProjection;	// Projection of the Other object on the current separting plane
-	matrix3 R;				// Rotational matrix that brings the Other object into This objects coordinate system
-	matrix3 AbsR;			// The absolute value of the R matrix
+	float thisProjection;		// Projection of This object on the current separting plane
+	float otherProjection;		// Projection of the Other object on the current separting plane
+	const uint mat3Value = 3;	// For looping through the matrices (3)
+	const uint axesValue = 3;	// For looping through the axes (3)
+	const uint xAxis = 0;		// Index representing x-axis (0)
+	const uint yAxis = 1;		// Index representing y-axis (1)
+	const uint zAxis = 2;		// Index representing z-axis (2)
+	matrix3 R;					// Rotational matrix that brings the Other object into This objects coordinate system
+	matrix3 AbsR;				// The absolute value of the R matrix
 	vector3 thisHalfWidth = m_v3HalfWidth;				// Halfwidth of This OOB
 	vector3 otherHalfWidth = a_pOther->m_v3HalfWidth;	// Halfwidth of the Other OOB
 
 	// Calculate the rotation matrix (R)
-	for (uint i = 0; i < 3; i++)
+	for (uint i = 0; i < mat3Value; i++)
 	{
-		for (uint j = 0; j < 3; j++)
+		for (uint j = 0; j < mat3Value; j++)
 		{
 			R[i][j] = glm::dot(thisAxes[i], otherAxes[j]);
 		}
@@ -370,37 +388,52 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	vector3 distanceCenter = a_pOther->GetCenterGlobal() - GetCenterGlobal();
 	// Bring distanceCenter into This coordinate frame
 	distanceCenter = vector3(
-		glm::dot(distanceCenter, thisAxes[0]),
-		glm::dot(distanceCenter, thisAxes[1]),
-		glm::dot(distanceCenter, thisAxes[2]));
+		glm::dot(distanceCenter, thisAxes[xAxis]),
+		glm::dot(distanceCenter, thisAxes[yAxis]),
+		glm::dot(distanceCenter, thisAxes[zAxis]));
 
 	// Compute common subexpressions. Add in epislon term to conteract arithmitac errors when two
 	// edges are parrallel and their cross product is (near) null 
-	for (uint i = 0; i < 3; i++)
-		for (uint j = 0; j < 3; j++)
+	for (uint i = 0; i < mat3Value; i++)
+		for (uint j = 0; j < mat3Value; j++)
 			AbsR[i][j] = glm::abs(R[i][j]) + DBL_EPSILON;
 
+	// *Note A = This B = Other
 	// test axes L=AX, L=AY, L=AZ
-	for (uint i = 0; i < 3; i++)
+	for (uint i = 0; i < axesValue; i++)
 	{
 		thisProjection = thisHalfWidth[i];
 		otherProjection = otherHalfWidth.x * AbsR[i][0] + otherHalfWidth.y * AbsR[i][1] + otherHalfWidth.z * AbsR[i][2];
-		if (glm::abs(distanceCenter[i]) > thisProjection + otherProjection)
-			return 1;
+		if (glm::abs(distanceCenter[i]) > thisProjection + otherProjection) {
+			switch (i)
+			{
+			case 0: return eSATResults::SAT_AX; // if gap on X axis
+			case 1: return eSATResults::SAT_AY; // if gap on Y axis
+			case 2: return eSATResults::SAT_AZ; // if gap on Z axis
+			default:return 1;
+			}
+		}
 	}
 
 	// test axes L=BX, L=BY, L=BZ
-	for (uint i = 0; i < 3; i++)
+	for (uint i = 0; i < axesValue; i++)
 	{
 		thisProjection = thisHalfWidth.x * AbsR[0][i] + thisHalfWidth.y * AbsR[1][i] + thisHalfWidth.z * AbsR[2][i];
 		otherProjection = otherHalfWidth[i];
 		if (glm::abs(distanceCenter.x * R[0][i] +
 			distanceCenter.y * R[1][i] +
-			distanceCenter.z * R[2][i]) > thisProjection + otherProjection)
-			return 1;
+			distanceCenter.z * R[2][i]) > thisProjection + otherProjection) {
+			switch (i)
+			{
+			case 0: return eSATResults::SAT_BX; // if gap on X axis
+			case 1: return eSATResults::SAT_BY; // if gap on Y axis
+			case 2: return eSATResults::SAT_BZ; // if gap on Z axis
+			default:return 1;
+			}
+		}
 	}
 
-	// *Note x = cross product of each axis
+	// **Note x = cross product of each axis
 	// test axis AX x BX
 	thisProjection = thisHalfWidth.y * AbsR[2][0] + thisHalfWidth.z * AbsR[1][0];
 	otherProjection = otherHalfWidth.y * AbsR[0][2] + otherHalfWidth.z * AbsR[0][1];
