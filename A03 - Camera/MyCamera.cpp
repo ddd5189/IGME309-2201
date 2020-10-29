@@ -174,6 +174,6 @@ void MyCamera::MoveVertical(float a_fDistance)
 void MyCamera::MoveSideways(float a_fDistance)
 {
 	// calculate the position using the cross product of the target and 
-	// above vector (again always parallel to the y axis) scaled by the speed
+	// above vector (again always parallel to the y axis) 4scaled by the speed
 	m_v3Position += glm::normalize(glm::cross(m_v3Target, m_v3Above)) * a_fDistance;
 }
