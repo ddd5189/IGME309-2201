@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{58CB6636-1057-466F-AB91-BADB3395421A}</ProjectGuid>
-    <RootNamespace>C22_Physics</RootNamespace>
-    <ProjectName>C22_Physics</ProjectName>
+    <ProjectGuid>{6542809B-A306-4B88-917A-4DA0C57DD289}</ProjectGuid>
+    <RootNamespace>Final Practical</RootNamespace>
+    <ProjectName>Final Practical</ProjectName>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -105,9 +105,7 @@ xcopy "$(SolutionDir)include\Simplex\Shaders" "$(SolutionDir)_Binary\Shaders" /y
     <ClCompile Include="AppClassControls.cpp" />
     <ClCompile Include="AppClassGUI.cpp" />
     <ClCompile Include="AppClassMain.cpp" />
-    <ClCompile Include="AStar.cpp" />
     <ClCompile Include="ControllerConfiguration.cpp" />
-    <ClCompile Include="Floor.cpp" />
     <ClCompile Include="MyEntity.cpp" />
     <ClCompile Include="MyEntityManager.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -121,10 +119,8 @@ xcopy "$(SolutionDir)include\Simplex\Shaders" "$(SolutionDir)_Binary\Shaders" /y
     <ClInclude Include="..\include\imgui\imgui_internal.h" />
     <ClInclude Include="..\res\resource.h" />
     <ClInclude Include="AppClass.h" />
-    <ClInclude Include="AStar.h" />
     <ClInclude Include="ControllerConfiguration.h" />
     <ClInclude Include="Definitions.h" />
-    <ClInclude Include="Floor.h" />
     <ClInclude Include="MyEntity.h" />
     <ClInclude Include="MyEntityManager.h" />
     <ClInclude Include="Main.h" />

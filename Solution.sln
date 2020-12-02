@@ -113,6 +113,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E06.5 - LERP", "E06.5 - LER
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E05 - Transformations", "E05 - Transformations\E05 - Transformations.vcxproj", "{624EB288-88BF-4677-AB45-FDB74C0558FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Final Practical", "Final Practical\Final Practical.vcxproj", "{6542809B-A306-4B88-917A-4DA0C57DD289}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -321,6 +323,10 @@ Global
 		{624EB288-88BF-4677-AB45-FDB74C0558FB}.Debug|x86.Build.0 = Debug|Win32
 		{624EB288-88BF-4677-AB45-FDB74C0558FB}.Release|x86.ActiveCfg = Release|Win32
 		{624EB288-88BF-4677-AB45-FDB74C0558FB}.Release|x86.Build.0 = Release|Win32
+		{6542809B-A306-4B88-917A-4DA0C57DD289}.Debug|x86.ActiveCfg = Debug|Win32
+		{6542809B-A306-4B88-917A-4DA0C57DD289}.Debug|x86.Build.0 = Debug|Win32
+		{6542809B-A306-4B88-917A-4DA0C57DD289}.Release|x86.ActiveCfg = Release|Win32
+		{6542809B-A306-4B88-917A-4DA0C57DD289}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -376,6 +382,7 @@ Global
 		{44D2C07B-798D-461B-9019-DFB240593888} = {EE0E027C-366F-4685-94D5-0EA5F6870B1B}
 		{822E40D2-80A1-46EB-AD93-EC28C4F145ED} = {78C06654-E155-40A8-97F7-7BA1E50977C5}
 		{624EB288-88BF-4677-AB45-FDB74C0558FB} = {78C06654-E155-40A8-97F7-7BA1E50977C5}
+		{6542809B-A306-4B88-917A-4DA0C57DD289} = {69E172C4-C41E-49E1-80A7-9F011CA76C8B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A36545A6-DAAA-4856-BDB7-57C29F88BC6B}

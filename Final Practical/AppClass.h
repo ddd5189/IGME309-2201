@@ -11,8 +11,6 @@ Date: 2017/06
 #include "imgui\ImGuiObject.h"
 
 #include "MyEntityManager.h"
-#include "AStar.h"
-#include "Floor.h"
 
 namespace Simplex
 {
@@ -20,11 +18,8 @@ namespace Simplex
 class Application
 {
 	MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
-	AStar* m_pAStar = nullptr;
-	Floor* m_pFloor = nullptr;
-
 private:
-	String m_sProgrammer = "Drew Donovan - ddd5189@rit.edu"; //programmer
+	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //programmer
 
 	static ImGuiObject gui; //GUI object
 	bool m_bGUI_Main = true; //show Main GUI window?

@@ -4,48 +4,27 @@ void Application::InitVariables(void)
 {
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUpward(
-		vector3(0.0f, 5.0f, 10.0f), //Position
+		vector3(0.0f, 5.0f, 25.0f), //Position
 		vector3(0.0f, 0.0f, 0.0f),	//Target
 		AXIS_Y);					//Up
 
 	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light)
 
 	m_pEntityMngr->AddEntity("Minecraft\\Steve.obj", "Steve");
-	m_pEntityMngr->SetModelMatrix(glm::scale(vector3(0.5f)));
 	m_pEntityMngr->UsePhysicsSolver();
 	
-	// Obstacles
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		m_pEntityMngr->AddEntity("Minecraft\\Cube.obj", "Cube_" + std::to_string(i));
-		vector3 v3Position = vector3(glm::sphericalRand(4.0f));
+		vector3 v3Position = vector3(glm::sphericalRand(12.0f));
 		v3Position.y = 0.0f;
 		matrix4 m4Position = glm::translate(v3Position);
-		m_pEntityMngr->SetModelMatrix(m4Position * glm::scale(vector3(0.5f)));
+		m_pEntityMngr->SetModelMatrix(m4Position * glm::scale(vector3(2.0f)));
 		m_pEntityMngr->UsePhysicsSolver();
 		//m_pEntityMngr->SetMass(2);
 
 		//m_pEntityMngr->SetMass(i+1);
 	}
-
-	// Floor
-	uint total = 0;
-	for (int i = -5; i < 5; i++)
-	{
-		for (int j = -5; j < 5; j++)
-		{
-			m_pEntityMngr->AddEntity("Minecraft\\Cube.obj", "Floor_" + std::to_string(total));
-			vector3 v3Position = vector3(i, -1.01f, j);
-			matrix4 m4Position = glm::translate(v3Position);
-			m_pEntityMngr->SetModelMatrix(m4Position);
-			m_pAStar->AddEntity(m_pEntityMngr->GetRigidBody("Floor_" + std::to_string(total)));
-			total++;
-		}
-	}
-
-	m_pEntityMngr->AddEntity("Minecraft\\Zombie.obj", "Zombie");
-	m_pEntityMngr->SetModelMatrix(glm::translate(vector3(4.0f, 0.0f, 4.0f)) * glm::scale(vector3(0.5f)));
-	m_pEntityMngr->UsePhysicsSolver();
 }
 void Application::Update(void)
 {
